@@ -1,6 +1,5 @@
 package io.github.soat7.myburguercontrol.config
 
-import io.github.soat7.myburguercontrol.domain.usecase.CustomUserDetailsUseCase
 import io.github.soat7.myburguercontrol.domain.usecase.TokenUseCase
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
@@ -15,7 +14,7 @@ import org.springframework.web.filter.OncePerRequestFilter
 
 @Component
 class JwtAuthenticationFilter(
-    private val userDetailsService: CustomUserDetailsUseCase,
+    //private val userDetailsService: CustomUserDetailsUseCase,
     private val tokenUseCase: TokenUseCase,
 ) : OncePerRequestFilter() {
 
@@ -37,15 +36,15 @@ class JwtAuthenticationFilter(
         val email = tokenUseCase.extractEmail(jwtToken)
 
         // Se email nao estar nulo e não pode tê autenticação presente
-        if (email != null && SecurityContextHolder.getContext().authentication == null) {
-            val foundUser = userDetailsService.loadUserByUsername(email)
-
-            if (tokenUseCase.isValid(jwtToken, foundUser)) {
-                updateContext(foundUser, request)
-            }
-
-            filterChain.doFilter(request, response)
-        }
+//        if (email != null && SecurityContextHolder.getContext().authentication == null) {
+//            val foundUser = userDetailsService.loadUserByUsername(email)
+//
+//            if (tokenUseCase.isValid(jwtToken, foundUser)) {
+//                updateContext(foundUser, request)
+//            }
+//
+//            filterChain.doFilter(request, response)
+//        }
     }
 
     private fun updateContext(foundUser: UserDetails, request: HttpServletRequest) {
