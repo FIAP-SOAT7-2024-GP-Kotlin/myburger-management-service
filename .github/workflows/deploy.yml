@@ -1,0 +1,46 @@
+name: CD MyBurger
+
+on:
+  workflow_run:
+    workflows: ["CI MyBurger"]
+    types:
+      - completed
+jobs:
+  deploy:
+    name: Deploy to DigitalOcean
+    runs-on: ubuntu-latest
+    env:
+       IMAGE_NAME: fiapmyburguer/myburgercontrol-clean-arch:latest
+
+    steps:
+      # Checkout do repositório
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Autenticação com a DigitalOcean
+      - name: Set up DigitalOcean [MyBurger ≡]
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DO_TOKEN_ACCESS }}
+
+      # Armazenar o ID do primeiro cluster na variável de ambiente
+      - name: Get First Cluster ID [MyBurger ≡]
+        run: |
+          CLUSTER_ID=$(doctl kubernetes cluster list --format ID --no-header | head -n 1)
+          echo "CLUSTER_ID=$CLUSTER_ID" >> $GITHUB_ENV
+
+      # Autenticação com o cluster Kubernetes
+      - name: Set up Kubernetes save [MyBurger ≡]
+        run: |
+          doctl kubernetes cluster kubeconfig save ${{ env.CLUSTER_ID }}
+
+      # Atualizar a imagem do deployment
+      - name: Update Image [MyBurger ≡]
+        run: |
+          kubectl set image deployment/myburger myburger=${{ env.IMAGE_NAME }}
+
+      # Resgata os logs da pod
+      - name: Get logs from pod
+        run: |
+          POD_NAME=$(kubectl get pods --selector=app=myburger -o jsonpath='{.items[0].metadata.name}')
+          kubectl logs $POD_NAME
