@@ -8,7 +8,9 @@ import io.github.soat7.myburguercontrol.external.webservice.auth.api.Authenticat
 import io.github.soat7.myburguercontrol.external.webservice.auth.api.AuthenticationResponse
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.userdetails.UserDetails
 import java.util.Date
+import java.util.EmptyStackException
 
 private val log = KotlinLogging.logger { }
 
@@ -31,10 +33,10 @@ class AuthenticationUseCase(
             throw ReasonCodeException(BAD_CREDENTIALS, e)
         }
 
-        val user = userDetailsService.loadUserByUsername(request.cpf)
+        val user = listOf(UserDetails::class)//userDetailsService.loadUserByUsername(request.cpf)
 
         val accessToken = tokenUseCase.generate(
-            userDetails = user,
+            userDetails = user.get(0).objectInstance!!,
             expirationDate = Date(System.currentTimeMillis() + jwtProperties.accessTokenExpiration),
         )
 
