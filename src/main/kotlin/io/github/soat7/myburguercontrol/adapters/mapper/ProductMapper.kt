@@ -8,7 +8,6 @@ import io.github.soat7.myburguercontrol.external.webservice.product.api.ProductR
 import java.time.Instant
 import java.util.UUID
 
-
 fun Product.toResponse() = ProductResponse(
     id = this.id,
     name = this.name,

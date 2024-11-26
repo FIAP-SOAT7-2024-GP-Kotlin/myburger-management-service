@@ -47,5 +47,4 @@ class BeanConfiguration {
     ) = TokenUseCase(
         jwtProperties = jwtProperties,
     )
-
 }

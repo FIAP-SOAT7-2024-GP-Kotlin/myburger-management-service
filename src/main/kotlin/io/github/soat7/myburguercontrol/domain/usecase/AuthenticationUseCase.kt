@@ -10,7 +10,6 @@ import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.userdetails.UserDetails
 import java.util.Date
-import java.util.EmptyStackException
 
 private val log = KotlinLogging.logger { }
 
@@ -33,7 +32,7 @@ class AuthenticationUseCase(
             throw ReasonCodeException(BAD_CREDENTIALS, e)
         }
 
-        val user = listOf(UserDetails::class)//userDetailsService.loadUserByUsername(request.cpf)
+        val user = listOf(UserDetails::class) // userDetailsService.loadUserByUsername(request.cpf)
 
         val accessToken = tokenUseCase.generate(
             userDetails = user.get(0).objectInstance!!,

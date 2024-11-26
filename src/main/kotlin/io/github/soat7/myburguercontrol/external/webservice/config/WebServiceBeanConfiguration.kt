@@ -21,5 +21,4 @@ class WebServiceBeanConfiguration {
     @Bean
     fun authHandler(authenticationUseCase: AuthenticationUseCase) =
         AuthenticationHandler(authenticationUseCase = authenticationUseCase)
-
 }

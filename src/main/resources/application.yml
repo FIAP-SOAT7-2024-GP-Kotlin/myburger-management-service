@@ -23,7 +23,7 @@ management:
     readinessstate:
       enabled: true
 spring:
-  application.name: myburguercontrol
+  application.name: myburger-payment-service
   config:
     import: optional:file:.env[.properties]
   datasource:
