@@ -1,1 +1,1 @@
-rootProject.name = "myburger-payment-service"
+rootProject.name = "myburger-management-service"

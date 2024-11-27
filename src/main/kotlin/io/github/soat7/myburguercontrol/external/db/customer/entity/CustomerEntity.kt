@@ -13,7 +13,7 @@ import java.util.UUID
 @Entity
 @Table(
     name = "customer",
-    schema = "myburguer",
+    schema = "mb_manager",
     uniqueConstraints = [
         UniqueConstraint(name = "uk_customer_cpf", columnNames = ["cpf"]),
     ],

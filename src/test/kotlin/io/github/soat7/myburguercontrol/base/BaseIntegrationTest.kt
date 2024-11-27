@@ -9,29 +9,20 @@ import io.github.soat7.myburguercontrol.domain.entities.Customer
 import io.github.soat7.myburguercontrol.domain.entities.enum.UserRole
 import io.github.soat7.myburguercontrol.external.db.customer.entity.CustomerEntity
 import io.github.soat7.myburguercontrol.external.db.customer.repository.CustomerJpaRepository
-import io.github.soat7.myburguercontrol.external.db.order.entity.OrderEntity
-import io.github.soat7.myburguercontrol.external.db.order.repository.OrderJpaRepository
-import io.github.soat7.myburguercontrol.external.db.payment.entity.PaymentEntity
-import io.github.soat7.myburguercontrol.external.db.payment.repository.PaymentJpaRepository
 import io.github.soat7.myburguercontrol.external.db.product.entity.ProductEntity
 import io.github.soat7.myburguercontrol.external.db.product.repository.ProductJpaRepository
-import io.github.soat7.myburguercontrol.external.db.user.repository.UserJpaRepository
-import io.github.soat7.myburguercontrol.external.webservice.auth.api.AuthenticationResponse
-import io.github.soat7.myburguercontrol.fixtures.AuthFixtures
-import io.github.soat7.myburguercontrol.fixtures.OrderFixtures
 import io.github.soat7.myburguercontrol.fixtures.ProductFixtures
-import io.github.soat7.myburguercontrol.fixtures.UserFixtures
+import io.github.soat7.myburguercontrol.util.JwtTokenUtil
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
-import org.springframework.boot.test.web.client.postForEntity
 import org.springframework.http.MediaType
-import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MultiValueMap
+import java.time.LocalDateTime
 import java.util.UUID
 
 private val log = KotlinLogging.logger { }
@@ -54,27 +45,12 @@ class BaseIntegrationTest {
     protected lateinit var customerJpaRepository: CustomerJpaRepository
 
     @Autowired
-    protected lateinit var orderJpaRepository: OrderJpaRepository
-
-    @Autowired
-    protected lateinit var userJpaRepository: UserJpaRepository
-
-    @Autowired
-    protected lateinit var passwordEncoder: PasswordEncoder
-
-    @Autowired
-    protected lateinit var paymentJpaRepository: PaymentJpaRepository
+    protected lateinit var jwtTokenUtil: JwtTokenUtil
 
     protected lateinit var authenticationHeader: MultiValueMap<String, String>
 
     @BeforeEach
     fun setUpAuthentication() {
-        println("Cleaning User database...")
-        userJpaRepository.deleteAll()
-
-        println("Cleaning Order database...")
-        orderJpaRepository.deleteAll()
-
         authenticationHeader = buildAuthentication()
     }
 
@@ -89,40 +65,19 @@ class BaseIntegrationTest {
         return customerJpaRepository.save(customer.toPersistence())
     }
 
-    protected fun insertPaymentData(payment: Payment) = paymentJpaRepository.save(payment.toPersistence())
-
     protected fun buildAuthentication(): MultiValueMap<String, String> {
         val cpf = "15666127055"
         val password = UUID.randomUUID().toString()
         val userRole = UserRole.ADMIN
-        userJpaRepository.save(
-            UserFixtures.mockUserEntity(
-                cpf = cpf,
-                password = passwordEncoder.encode(password),
-                userRole = userRole,
-            ),
-        )
+        val ldt = LocalDateTime.now()
 
-        val response = restTemplate.postForEntity<AuthenticationResponse>(
-            "/auth",
-            AuthFixtures.mockAuthCreationRequest(cpf, password),
-        ).body
-            ?: throw RuntimeException("Failed to authenticate")
+        val token = jwtTokenUtil.generateToken(cpf, ldt)
 
         val header: MultiValueMap<String, String> = LinkedMultiValueMap()
-        log.info { "######### token: ${response.accessToken}" }
-        header.add("Authorization", "Bearer ${response.accessToken}")
+        log.info { "######### token: $token" }
+        header.add("Authorization", "Bearer $token")
         header.add("Content-Type", MediaType.APPLICATION_JSON_VALUE)
 
         return header
-    }
-
-    protected fun saveOrder(
-        customer: CustomerEntity,
-        product: ProductEntity,
-        payment: PaymentEntity,
-        status: String? = null,
-    ): OrderEntity {
-        return orderJpaRepository.save(OrderFixtures.mockOrderEntity(customer, product, payment, status))
     }
 }

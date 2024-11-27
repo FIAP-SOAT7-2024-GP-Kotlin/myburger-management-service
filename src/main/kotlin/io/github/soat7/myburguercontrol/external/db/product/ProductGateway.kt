@@ -1,7 +1,7 @@
 package io.github.soat7.myburguercontrol.external.db.product
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.github.soat7.myburguercontrol.adapters.gateway.ProductRepository
+import io.github.soat7.myburguercontrol.adapters.gateway.ProductGateway
 import io.github.soat7.myburguercontrol.adapters.mapper.toDomain
 import io.github.soat7.myburguercontrol.adapters.mapper.toPersistence
 import io.github.soat7.myburguercontrol.domain.entities.Product
@@ -17,7 +17,7 @@ private val logger = KotlinLogging.logger {}
 @Component
 class ProductGateway(
     private val repository: ProductJpaRepository,
-) : ProductRepository {
+) : ProductGateway {
 
     override fun create(product: Product): Product = try {
         repository

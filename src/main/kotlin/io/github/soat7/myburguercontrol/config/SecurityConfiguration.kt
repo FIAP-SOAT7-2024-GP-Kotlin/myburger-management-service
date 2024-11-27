@@ -1,14 +1,16 @@
 package io.github.soat7.myburguercontrol.config
 
+import io.github.soat7.myburguercontrol.domain.entities.enum.UserRole
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.http.HttpMethod
+import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.AuthenticationProvider
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.web.DefaultSecurityFilterChain
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.springframework.security.web.authentication.AuthenticationConverter
+import org.springframework.security.web.authentication.AuthenticationFilter
 
 @Configuration
 @EnableWebSecurity
@@ -18,15 +20,16 @@ class SecurityConfiguration(
     @Bean
     fun securityFilterChain(
         http: HttpSecurity,
-        jwtAuthenticationFilter: JwtAuthenticationFilter,
-    ): DefaultSecurityFilterChain =
+        authenticationManager: AuthenticationManager,
+        authenticationConverter: AuthenticationConverter,
+    ): DefaultSecurityFilterChain = run {
+        val filter = AuthenticationFilter(authenticationManager, authenticationConverter)
+
         http
             .csrf { it.disable() }
             .authorizeHttpRequests {
                 it
                     .requestMatchers(
-                        "/auth",
-                        "/auth/refresh",
                         "/webhook",
                         "/error",
                         "/swagger-ui/**",
@@ -34,20 +37,18 @@ class SecurityConfiguration(
                         "/v3/api-docs/**",
                         "/webjars/**",
                         "/actuator/**",
-                        "/orders",
                     )
                     .permitAll()
-                    .requestMatchers(HttpMethod.POST, "/users")
-                    .permitAll()
-                    .requestMatchers("/user**")
-                    .hasRole("USER")
                     .anyRequest()
-                    .fullyAuthenticated()
+                    .hasRole(UserRole.ADMIN.name)
             }
             .sessionManagement {
                 it.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             }
-            .authenticationProvider(authenticationProvider)
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
+            .addFilter(filter)
+            .formLogin { it.disable() }
+            .httpBasic { it.disable() }
+            .csrf { it.disable() }
             .build()
+    }
 }

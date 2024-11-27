@@ -13,7 +13,7 @@ import java.util.UUID
 @Entity
 @Table(
     name = "product",
-    schema = "myburguer",
+    schema = "mb_manager",
 )
 data class ProductEntity(
 

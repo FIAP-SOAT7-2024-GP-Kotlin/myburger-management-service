@@ -1,6 +1,6 @@
 package io.github.soat7.myburguercontrol.external.db.customer
 
-import io.github.soat7.myburguercontrol.adapters.gateway.CustomerRepository
+import io.github.soat7.myburguercontrol.adapters.gateway.CustomerGateway
 import io.github.soat7.myburguercontrol.adapters.mapper.toDomain
 import io.github.soat7.myburguercontrol.adapters.mapper.toPersistence
 import io.github.soat7.myburguercontrol.domain.entities.Customer
@@ -12,7 +12,7 @@ import java.util.UUID
 @Component
 class CustomerGateway(
     private val repository: CustomerJpaRepository,
-) : CustomerRepository {
+) : CustomerGateway {
 
     override fun create(customer: Customer): Customer = repository.save(customer.toPersistence()).toDomain()
     override fun findCustomerByCpf(cpf: String): Customer? = repository.findByCpf(cpf)?.toDomain()

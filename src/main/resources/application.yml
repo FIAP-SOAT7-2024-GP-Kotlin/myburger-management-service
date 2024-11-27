@@ -22,12 +22,18 @@ management:
       enabled: true
     readinessstate:
       enabled: true
+
+myburger:
+  service:
+    user:
+      base-url: ${MYBURGER_USER_SERVICE_URL:/users}
+
 spring:
-  application.name: myburger-payment-service
+  application.name: myburger-management-service
   config:
     import: optional:file:.env[.properties]
   datasource:
-    schema: myburguer
+    schema: mb_manager
     url: jdbc:${DATABASE_URL}
     username: ${DATABASE_USER}
     password: ${DATABASE_PASSWORD}
@@ -62,14 +68,9 @@ spring:
       fail_on_empty_beans: false
       write_dates_as_timestamps: false
     property-naming-strategy: SNAKE_CASE
-
-
-third-party:
-  payment-integration:
-    url: ${MP_REQUEST_URL}
-    auth-token: ${MP_AUTH_TOKEN}
-    connectionTimeout: 5000
-    readTimeout: 5000
+  rest-template:
+    connect-timeout: 5000
+    read-timeout: 5000
 
 springdoc:
   version: '@springdoc.version@'
@@ -95,10 +96,3 @@ jwt:
   key: ${JWT_KEY}
   access-token-expiration: 3600000
   refresh-token-expiration: 86400000
-
-mercadopago:
-  paymentURL: ${MP_PAYMENT_URL}
-  merchantURL: ${MP_MERCHANT_URL}
-  accessToken: ${MP_ACCESS_TOKEN}
-  webhookKey: ${MP_WEBHOOK_KEY}
-  notificationUrl: ${MP_NOTIFICATION_URL}

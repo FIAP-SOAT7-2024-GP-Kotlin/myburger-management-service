@@ -3,7 +3,7 @@ package io.github.soat7.myburguercontrol.adapters.gateway
 import io.github.soat7.myburguercontrol.domain.entities.Customer
 import java.util.UUID
 
-interface CustomerRepository {
+interface CustomerGateway {
 
     fun create(customer: Customer): Customer
 

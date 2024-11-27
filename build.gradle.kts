@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.liquibase.gradle.LiquibaseTask
 import java.io.IOException
@@ -6,6 +7,7 @@ import java.util.Properties
 // from gradle.properties
 val testContainerVersion: String by ext
 val javaVersion = JavaVersion.VERSION_21
+val javaVersionCompiler = JvmTarget.JVM_21
 
 val props = Properties()
 try {
@@ -21,11 +23,11 @@ plugins {
     kotlin("plugin.allopen") version "2.0.21"
     jacoco
 
-    id("org.springframework.boot") version "3.3.5"
+    id("org.springframework.boot") version "3.4.0"
     id("io.spring.dependency-management") version "1.1.6"
     id("org.liquibase.gradle") version "3.0.1"
     id("org.barfuin.gradle.jacocolog") version "3.1.0"
-    id("org.jlleitschuh.gradle.ktlint") version "12.1.1"
+    id("org.jlleitschuh.gradle.ktlint") version "12.1.2"
 }
 
 group = "io.github.soat7"
@@ -43,7 +45,7 @@ if (!javaVersion.isCompatibleWith(JavaVersion.current())) {
 
 buildscript {
     val testContainerVersion by extra { "1.20.+" }
-    val liquibaseVersion by extra { "4.29+" }
+    val liquibaseVersion by extra { "4.30+" }
 
     dependencies {
         classpath("org.liquibase:liquibase-core:$liquibaseVersion")
@@ -81,9 +83,9 @@ dependencies {
     implementation("org.apache.httpcomponents.client5:httpclient5")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.postgresql:postgresql:42.7.+")
-    implementation("com.google.guava:guava:33.2.1-jre")
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
-    implementation("commons-codec:commons-codec:1.17.0")
+    implementation("com.google.guava:guava:33.3.1-jre")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0")
+    implementation("commons-codec:commons-codec:1.17.+")
 
     // jwt
     implementation("io.jsonwebtoken:jjwt-api:0.12.+")
@@ -118,9 +120,9 @@ dependencies {
 }
 
 tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        freeCompilerArgs += "-Xjsr305=strict"
-        jvmTarget = javaVersion.toString()
+    compilerOptions {
+        freeCompilerArgs.add("-Xjsr305=strict")
+        jvmTarget.set(javaVersionCompiler)
     }
 }
 
@@ -130,7 +132,6 @@ tasks.named<Jar>("jar") {
 
 tasks.withType<Test> {
     useJUnitPlatform()
-//    forkEvery = 0
     environment.putAll(
         props.entries.associate { it.key.toString() to it.value.toString() },
     )
@@ -202,7 +203,7 @@ liquibase {
                 "dialect=org.hibernate.dialect.PostgreSQLDialect&" +
                 "hibernate.physical_naming_strategy=org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy&" +
                 "hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy",
-            "defaultSchemaName" to "alloy_id",
+            "defaultSchemaName" to "mb_manager",
         )
     }
 }
