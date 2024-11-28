@@ -29,9 +29,10 @@ class MockServerContainer : BeforeAllCallback {
                 .withCreateContainerCmdModifier { it.withName("$CONTAINER_NAME-$containerNameSuffix") }
                 .start()
 
+            System.setProperty("mock-server.url", "http://${container.host}:${container.getMappedPort(PORT)}")
             System.setProperty(
-                "mock-server.url",
-                String.format("http://%s:%d", container.host, container.getMappedPort(PORT)),
+                "myburger.service.user.base-url",
+                "http://${container.host}:${container.getMappedPort(PORT)}/api/v1/users",
             )
         }
 

@@ -5,7 +5,7 @@
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
     <changeSet id="2024-04-30-customer-table-creation" author="luizfernando.calazans8@gmail.com">
-        <createTable tableName="customer">
+        <createTable tableName="customer" schemaName="mb_manager">
             <column name="id" type="UUID">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="pk_customer"/>
             </column>
@@ -18,7 +18,8 @@
 
         </createTable>
 
-        <addUniqueConstraint columnNames="cpf" constraintName="uk_customer_cpf" tableName="customer"/>
+        <addUniqueConstraint columnNames="cpf" constraintName="uk_customer_cpf" tableName="customer"
+                             schemaName="mb_manager"/>
     </changeSet>
 
 </databaseChangeLog>

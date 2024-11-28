@@ -3,7 +3,6 @@ package io.github.soat7.myburguercontrol.util
 import io.github.soat7.myburguercontrol.config.JwtProperties
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import java.time.Instant
 import java.time.LocalDateTime
@@ -11,7 +10,7 @@ import java.time.ZoneId
 import java.util.Date
 
 @Component
-class JwtTokenUtil @Autowired constructor(
+class JwtTokenUtil(
     jwtProperties: JwtProperties,
 ) {
     private val secretKey = Keys.hmacShaKeyFor(jwtProperties.key.toByteArray())

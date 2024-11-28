@@ -11,6 +11,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.web.authentication.AuthenticationConverter
 import org.springframework.stereotype.Component
 
+@Component
 @ConfigurationProperties("jwt")
 data class JwtProperties(
     val key: String,
