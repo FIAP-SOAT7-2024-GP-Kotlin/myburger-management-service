@@ -27,7 +27,7 @@ class ProductIT : BaseIntegrationTest() {
         val response = restTemplate.exchange<ProductResponse>(
             url = "/products",
             method = HttpMethod.POST,
-            requestEntity = HttpEntity(inputProductData, authenticationHeader),
+            requestEntity = HttpEntity(inputProductData),
         )
 
         assertAll(
@@ -53,7 +53,6 @@ class ProductIT : BaseIntegrationTest() {
         val response = restTemplate.exchange<ProductResponse>(
             url = "/products/{id}",
             method = HttpMethod.GET,
-            requestEntity = HttpEntity(null, authenticationHeader),
             uriVariables = mapOf("id" to product.id),
         )
 
@@ -74,7 +73,6 @@ class ProductIT : BaseIntegrationTest() {
         val response = restTemplate.exchange<ProductResponse>(
             url = "/products/{id}",
             method = HttpMethod.GET,
-            requestEntity = HttpEntity(null, authenticationHeader),
             uriVariables = mapOf(
                 "id" to randomId.toString(),
             ),
@@ -88,7 +86,6 @@ class ProductIT : BaseIntegrationTest() {
             restTemplate.exchange<PaginatedResponse<ProductResponse>>(
                 url = "/products",
                 method = HttpMethod.GET,
-                requestEntity = HttpEntity(null, authenticationHeader),
             )
 
         assertAll(
@@ -105,7 +102,6 @@ class ProductIT : BaseIntegrationTest() {
         val response = restTemplate.exchange<PaginatedResponse<ProductResponse>>(
             url = "/products",
             method = HttpMethod.GET,
-            requestEntity = HttpEntity(null, authenticationHeader),
         )
 
         assertAll(
@@ -124,7 +120,6 @@ class ProductIT : BaseIntegrationTest() {
         val response = restTemplate.exchange<List<ProductResponse>>(
             url = "/products/type?type={type}",
             method = HttpMethod.GET,
-            requestEntity = HttpEntity(null, authenticationHeader),
             uriVariables = mapOf("type" to type),
         )
 
@@ -143,7 +138,6 @@ class ProductIT : BaseIntegrationTest() {
         val response = restTemplate.exchange<List<ProductResponse>>(
             url = "/products/type?type={type}",
             method = HttpMethod.GET,
-            requestEntity = HttpEntity(null, authenticationHeader),
             uriVariables = mapOf("type" to type),
         )
 
@@ -161,7 +155,6 @@ class ProductIT : BaseIntegrationTest() {
         val response = restTemplate.exchange<Void>(
             url = "/products/{id}",
             method = HttpMethod.DELETE,
-            requestEntity = HttpEntity(null, authenticationHeader),
             uriVariables = mapOf("id" to product.id),
         )
 
@@ -175,7 +168,6 @@ class ProductIT : BaseIntegrationTest() {
         val response = restTemplate.exchange<Void>(
             url = "/products/{id}",
             method = HttpMethod.DELETE,
-            requestEntity = HttpEntity(null, authenticationHeader),
             uriVariables = mapOf(
                 "id" to randomId.toString(),
             ),

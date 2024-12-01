@@ -1,41 +1,36 @@
 package io.github.soat7.myburguercontrol.container
 
-import org.junit.jupiter.api.extension.BeforeAllCallback
-import org.junit.jupiter.api.extension.ExtensionContext
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.mockserver.client.MockServerClient
 import org.testcontainers.containers.MockServerContainer
 import org.testcontainers.utility.DockerImageName
-import java.util.UUID
 
-class MockServerContainer : BeforeAllCallback {
+private val log = KotlinLogging.logger { }
 
-    companion object {
-        private const val PORT = 1080
-        private const val CONTAINER_NAME = "mock-server-test"
-        private const val VERSION = "5.15.0"
+object MockServerContainer {
 
-        val container: MockServerContainer = MockServerContainer(
+    private const val VERSION = "5.15.0"
+
+    val mockserver =
+        MockServerContainer(
             DockerImageName.parse("mockserver/mockserver:mockserver-$VERSION"),
-        )
-
-        lateinit var client: MockServerClient
-            private set
-    }
-
-    override fun beforeAll(context: ExtensionContext?) {
-        if (!container.isRunning) {
-            val containerNameSuffix: String = UUID.randomUUID().toString().replace("-", "").substring(0, 8)
-            container
-                .withCreateContainerCmdModifier { it.withName("$CONTAINER_NAME-$containerNameSuffix") }
-                .start()
-
-            System.setProperty("mock-server.url", "http://${container.host}:${container.getMappedPort(PORT)}")
-            System.setProperty(
-                "myburger.service.user.base-url",
-                "http://${container.host}:${container.getMappedPort(PORT)}/api/v1/users",
-            )
+        ).apply {
+            withReuse(true)
+//            withLogConsumer {
+//                when (it.type) {
+//                    OutputFrame.OutputType.STDERR -> log.error { it.utf8StringWithoutLineEnding }
+//                    else -> log.info { it.utf8StringWithoutLineEnding }
+//                }
+//            }
+            start()
         }
 
-        client = MockServerClient(container.host, container.getMappedPort(PORT))
-    }
+    fun client() =
+        run {
+            do {
+                Thread.sleep(100)
+            } while (!mockserver.isCreated)
+
+            MockServerClient(mockserver.host, mockserver.serverPort)
+        }
 }
