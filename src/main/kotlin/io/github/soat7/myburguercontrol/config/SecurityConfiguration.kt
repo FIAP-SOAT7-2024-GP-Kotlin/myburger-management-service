@@ -37,7 +37,7 @@ class SecurityConfiguration {
                     )
                     .permitAll()
                     .anyRequest()
-                    .hasRole(UserRole.ADMIN.name)
+                    .hasAnyAuthority(UserRole.ADMIN.name)
             }
             .sessionManagement {
                 it.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
