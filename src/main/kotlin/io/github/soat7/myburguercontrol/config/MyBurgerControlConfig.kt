@@ -20,7 +20,7 @@ import java.time.Duration
 @Configuration
 @EnableWebMvc
 @AutoConfiguration
-class MyBurguerControlConfig {
+class MyBurgerControlConfig {
 
     @Bean
     fun objectMapperBuilder(): Jackson2ObjectMapperBuilder = Jackson2ObjectMapperBuilder()

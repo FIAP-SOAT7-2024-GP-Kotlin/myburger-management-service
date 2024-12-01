@@ -4,7 +4,6 @@ import io.github.soat7.myburguercontrol.domain.entities.enum.UserRole
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AuthenticationManager
-import org.springframework.security.authentication.AuthenticationProvider
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
@@ -14,9 +13,7 @@ import org.springframework.security.web.authentication.AuthenticationFilter
 
 @Configuration
 @EnableWebSecurity
-class SecurityConfiguration(
-    private val authenticationProvider: AuthenticationProvider,
-) {
+class SecurityConfiguration {
     @Bean
     fun securityFilterChain(
         http: HttpSecurity,

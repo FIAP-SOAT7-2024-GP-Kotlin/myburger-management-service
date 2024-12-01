@@ -26,7 +26,7 @@ class CustomerIT : BaseIntegrationTest() {
         val response = restTemplate.exchange<CustomerResponse>(
             url = "/customers",
             method = HttpMethod.POST,
-            requestEntity = HttpEntity(inputCustomerData, authenticationHeader),
+            requestEntity = HttpEntity(inputCustomerData),
         )
 
         assertAll(
@@ -52,7 +52,7 @@ class CustomerIT : BaseIntegrationTest() {
         val response = restTemplate.exchange<Any>(
             url = "/customers",
             method = HttpMethod.POST,
-            requestEntity = HttpEntity(inputCustomerData, authenticationHeader),
+            requestEntity = HttpEntity(inputCustomerData),
         )
 
         assertEquals(HttpStatus.BAD_REQUEST, response.statusCode)
@@ -66,7 +66,6 @@ class CustomerIT : BaseIntegrationTest() {
         val response = restTemplate.exchange<CustomerResponse>(
             url = "/customers/{id}",
             method = HttpMethod.GET,
-            requestEntity = HttpEntity(null, authenticationHeader),
             uriVariables = mapOf(
                 "id" to customer.id,
             ),
@@ -87,7 +86,6 @@ class CustomerIT : BaseIntegrationTest() {
         val response = restTemplate.exchange<CustomerResponse>(
             url = "/customers/{id}",
             method = HttpMethod.GET,
-            requestEntity = HttpEntity(null, authenticationHeader),
             uriVariables = mapOf(
                 "id" to randomId.toString(),
             ),
@@ -104,7 +102,6 @@ class CustomerIT : BaseIntegrationTest() {
         val response = restTemplate.exchange<CustomerResponse>(
             url = "/customers?cpf={cpf}",
             method = HttpMethod.GET,
-            requestEntity = HttpEntity(null, authenticationHeader),
             uriVariables = mapOf(
                 "cpf" to cpf,
             ),
@@ -125,7 +122,6 @@ class CustomerIT : BaseIntegrationTest() {
         val response = restTemplate.exchange<CustomerResponse>(
             url = "/customers?cpf={cpf}",
             method = HttpMethod.GET,
-            requestEntity = HttpEntity(null, authenticationHeader),
             uriVariables = mapOf(
                 "cpf" to cpf,
             ),

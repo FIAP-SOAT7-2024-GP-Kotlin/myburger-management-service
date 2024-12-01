@@ -84,13 +84,12 @@ springdoc:
 
 logging:
   level:
-    org:
-      springframework:
-        web: ${LOG_LEVEL:DEBUG}
-    io:
-      github:
-        soat7:
-          myburguercontrol: ${LOG_LEVEL:DEBUG}
+    io.github.soat7: ${LOG_LEVEL:DEBUG}
+    org.springframework.jdbc.core.JdbcTemplate: ${LOG_LEVEL:DEBUG}
+    org.springframework.web.client: ${LOG_LEVEL:DEBUG}
+    org.springframework.security: ${LOG_LEVEL:DEBUG}
+    org.hibernate.tool.schema: ${LOG_LEVEL:DEBUG}
+    org.hibernate.SQL: ${LOG_LEVEL:DEBUG}
 
 jwt:
   key: ${JWT_KEY}

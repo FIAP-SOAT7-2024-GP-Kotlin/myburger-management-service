@@ -119,6 +119,13 @@ dependencies {
     liquibaseRuntime(sourceSets.main.get().runtimeClasspath)
 }
 
+if (hasProperty("buildScan")) {
+    extensions.findByName("buildScan")?.withGroovyBuilder {
+        setProperty("termsOfServiceUrl", "https://gradle.com/terms-of-service")
+        setProperty("termsOfServiceAgree", "yes")
+    }
+}
+
 tasks.withType<KotlinCompile> {
     compilerOptions {
         freeCompilerArgs.add("-Xjsr305=strict")
