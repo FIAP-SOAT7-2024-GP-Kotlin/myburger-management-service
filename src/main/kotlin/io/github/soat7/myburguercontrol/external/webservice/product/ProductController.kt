@@ -1,14 +1,17 @@
 package io.github.soat7.myburguercontrol.external.webservice.product
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.soat7.myburguercontrol.adapters.controller.ProductHandler
 import io.github.soat7.myburguercontrol.external.webservice.common.PaginatedResponse
 import io.github.soat7.myburguercontrol.external.webservice.product.api.ProductCreationRequest
 import io.github.soat7.myburguercontrol.external.webservice.product.api.ProductResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
-import jakarta.transaction.Transactional
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.transaction.annotation.Isolation
+import org.springframework.transaction.annotation.Propagation
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -19,6 +22,8 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
+
+private val log = KotlinLogging.logger { }
 
 @RestController("product-controller")
 @RequestMapping(
@@ -31,16 +36,22 @@ class ProductController(
     private val productHandler: ProductHandler,
 ) {
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false, isolation = Isolation.READ_COMMITTED)
     @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE])
     @Operation(
         tags = ["99 - Adminstrativo"],
         summary = "Utilize esta rota para cadastrar um novo produto",
         description = "Utilize esta rota para cadastrar um novo produto",
     )
-    fun createProduct(@RequestBody request: ProductCreationRequest): ResponseEntity<ProductResponse> =
-        ResponseEntity.ok(productHandler.create(request))
+    fun createProduct(@RequestBody request: ProductCreationRequest): ResponseEntity<ProductResponse> = run {
+        val result = ResponseEntity.ok(productHandler.create(request))
 
+        log.info { "result = $result" }
+
+        result
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false, isolation = Isolation.READ_COMMITTED)
     @DeleteMapping(path = ["/{id}"])
     @Operation(
         tags = ["99 - Adminstrativo"],
@@ -52,6 +63,7 @@ class ProductController(
         ResponseEntity.noContent().build()
     }
 
+    @Transactional(propagation = Propagation.NEVER, readOnly = true, isolation = Isolation.READ_COMMITTED)
     @GetMapping(path = ["/{id}"])
     @Operation(
         tags = ["99 - Adminstrativo"],
@@ -63,6 +75,7 @@ class ProductController(
             ResponseEntity.ok(it)
         } ?: ResponseEntity.notFound().build()
 
+    @Transactional(propagation = Propagation.NEVER, readOnly = true, isolation = Isolation.READ_COMMITTED)
     @GetMapping("/type")
     @Operation(
         tags = ["2 - Jornada do Pedido"],
@@ -72,6 +85,7 @@ class ProductController(
     fun getProductByType(@RequestParam type: String): ResponseEntity<List<ProductResponse>> =
         ResponseEntity.ok(productHandler.getByProductType(type))
 
+    @Transactional(propagation = Propagation.NEVER, readOnly = true, isolation = Isolation.READ_COMMITTED)
     @GetMapping
     @Operation(
         tags = ["2 - Jornada do Pedido"],

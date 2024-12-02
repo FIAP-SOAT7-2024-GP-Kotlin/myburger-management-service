@@ -5,6 +5,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.soat7.myburguercontrol.Application
 import io.github.soat7.myburguercontrol.adapters.mapper.toPersistence
 import io.github.soat7.myburguercontrol.config.MyBurgerControlConfig
+import io.github.soat7.myburguercontrol.config.MyBurgerTestConfig
 import io.github.soat7.myburguercontrol.container.MockServerContainer
 import io.github.soat7.myburguercontrol.container.PostgresContainer
 import io.github.soat7.myburguercontrol.domain.entities.Customer
@@ -35,7 +36,7 @@ private val log = KotlinLogging.logger { }
 
 @ActiveProfiles("test")
 @SpringBootTest(
-    classes = [Application::class, MyBurgerControlConfig::class],
+    classes = [MyBurgerTestConfig::class, Application::class, MyBurgerControlConfig::class],
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
 )
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)

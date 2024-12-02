@@ -8,6 +8,7 @@ import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.AutoConfiguration
+import org.springframework.boot.http.client.ClientHttpRequestFactoryBuilder
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -38,6 +39,11 @@ class MyBurgerControlConfig {
         @Value("\${spring.rest-template.read-timeout}") readTimeout: Long,
         builder: RestTemplateBuilder,
     ): RestTemplate = builder
+        .requestFactoryBuilder(
+            ClientHttpRequestFactoryBuilder.httpComponents().withHttpClientCustomizer {
+                it.disableRedirectHandling()
+            },
+        )
         .connectTimeout(Duration.ofMillis(connectTimeout))
         .readTimeout(Duration.ofMillis(readTimeout))
         .build()

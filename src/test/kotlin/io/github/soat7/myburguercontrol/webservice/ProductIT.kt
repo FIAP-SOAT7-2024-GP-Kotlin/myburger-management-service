@@ -1,10 +1,12 @@
 package io.github.soat7.myburguercontrol.webservice
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.soat7.myburguercontrol.base.BaseIntegrationTest
 import io.github.soat7.myburguercontrol.domain.entities.enum.ProductType
 import io.github.soat7.myburguercontrol.external.webservice.common.PaginatedResponse
 import io.github.soat7.myburguercontrol.external.webservice.product.api.ProductResponse
 import io.github.soat7.myburguercontrol.fixtures.ProductFixtures
+import jakarta.transaction.Transactional
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertAll
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -18,9 +20,12 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import java.util.UUID
 
+private val log = KotlinLogging.logger { }
+
 class ProductIT : BaseIntegrationTest() {
 
     @Test
+    @Transactional(Transactional.TxType.NEVER)
     fun `should successfully create a new product`() {
         val inputProductData = ProductFixtures.mockProductCreationRequest()
 
@@ -29,6 +34,8 @@ class ProductIT : BaseIntegrationTest() {
             method = HttpMethod.POST,
             requestEntity = HttpEntity(inputProductData),
         )
+
+        log.info { "response = $response" }
 
         assertThat(response.statusCode.is2xxSuccessful).isTrue()
         assertThat(response.body).isNotNull

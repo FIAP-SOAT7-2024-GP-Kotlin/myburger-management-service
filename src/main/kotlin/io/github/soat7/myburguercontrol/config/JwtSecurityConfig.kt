@@ -30,7 +30,7 @@ class JwtAuthenticationManager(
         val authWithAuthority = UsernamePasswordAuthenticationToken.authenticated(
             authentication.principal,
             authentication.credentials,
-            listOf(SimpleGrantedAuthority(user.role.name))
+            listOf(SimpleGrantedAuthority(user.role.name)),
         )
         authWithAuthority.details = user
 
