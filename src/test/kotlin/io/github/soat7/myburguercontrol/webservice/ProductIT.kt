@@ -30,19 +30,15 @@ class ProductIT : BaseIntegrationTest() {
             requestEntity = HttpEntity(inputProductData),
         )
 
-        assertAll(
-            Executable { assertTrue(response.statusCode.is2xxSuccessful) },
-            Executable { assertThat(response.body).isNotNull },
-            Executable { assertEquals(inputProductData.type.name, response.body!!.type) },
-        )
+        assertThat(response.statusCode.is2xxSuccessful).isTrue()
+        assertThat(response.body).isNotNull
+        assertThat(response.body!!.type).isEqualTo(inputProductData.type.name)
 
         val savedProduct = productJpaRepository.findByIdOrNull(response.body!!.id)
 
-        assertAll(
-            Executable { assertThat(savedProduct).isNotNull },
-            Executable { assertEquals(inputProductData.description, savedProduct!!.description) },
-            Executable { assertEquals(inputProductData.price, savedProduct!!.price) },
-        )
+        assertThat(savedProduct).isNotNull
+        assertThat(savedProduct!!.description).isEqualTo(inputProductData.description)
+        assertThat(savedProduct.price).isEqualTo(inputProductData.price)
     }
 
     @Test

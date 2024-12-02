@@ -6,6 +6,7 @@ import io.github.soat7.myburguercontrol.external.webservice.product.api.ProductC
 import io.github.soat7.myburguercontrol.external.webservice.product.api.ProductResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import jakarta.transaction.Transactional
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.CrossOrigin
@@ -30,6 +31,7 @@ class ProductController(
     private val productHandler: ProductHandler,
 ) {
 
+    @Transactional
     @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE])
     @Operation(
         tags = ["99 - Adminstrativo"],
