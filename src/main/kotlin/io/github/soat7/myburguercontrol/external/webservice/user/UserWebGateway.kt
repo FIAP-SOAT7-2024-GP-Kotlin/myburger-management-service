@@ -17,10 +17,10 @@ private val log = KotlinLogging.logger { }
 class UserWebGateway(
     @Value("\${myburger.service.user.base-url}")
     private val userServiceBaseUrl: String,
-
     @Qualifier("serviceUserRestTemplate")
     private val restTemplate: RestTemplate,
 ) : UserGateway {
+
     override fun findUserByCpf(cpf: String): User? = try {
         restTemplate
             .getForObject(
@@ -33,4 +33,5 @@ class UserWebGateway(
         log.error(e) { e.message }
         null
     }
+
 }

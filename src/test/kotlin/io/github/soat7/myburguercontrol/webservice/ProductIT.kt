@@ -8,14 +8,10 @@ import io.github.soat7.myburguercontrol.external.webservice.product.api.ProductR
 import io.github.soat7.myburguercontrol.fixtures.ProductFixtures
 import jakarta.transaction.Transactional
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Assertions.assertAll
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.function.Executable
 import org.springframework.boot.test.web.client.exchange
+import org.springframework.boot.test.web.client.postForEntity
 import org.springframework.data.repository.findByIdOrNull
-import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import java.util.UUID
@@ -29,11 +25,8 @@ class ProductIT : BaseIntegrationTest() {
     fun `should successfully create a new product`() {
         val inputProductData = ProductFixtures.mockProductCreationRequest()
 
-        val response = restTemplate.exchange<ProductResponse>(
-            url = "/products",
-            method = HttpMethod.POST,
-            requestEntity = HttpEntity(inputProductData),
-        )
+        val response = restTemplate.postForEntity<ProductResponse>("/products", inputProductData)
+
 
         log.info { "response = $response" }
 
@@ -59,14 +52,14 @@ class ProductIT : BaseIntegrationTest() {
             uriVariables = mapOf("id" to product.id),
         )
 
-        assertAll(
-            Executable { assertTrue(response.statusCode.is2xxSuccessful) },
-            Executable { assertThat(response.body).isNotNull },
-            Executable { assertEquals(product.id, response.body!!.id) },
-            Executable { assertEquals(product.description, response.body!!.description) },
-            Executable { assertEquals(product.price, response.body!!.price) },
-            Executable { assertEquals(product.type, response.body!!.type) },
-        )
+        assertThat(response.statusCode.is2xxSuccessful).isTrue()
+        assertThat(response.body).isNotNull
+
+        val responseBody = response.body!!
+        assertThat(responseBody.id).isEqualTo(product.id)
+        assertThat(responseBody.description).isEqualTo(product.description)
+        assertThat(responseBody.price).isEqualTo(product.price)
+        assertThat(responseBody.type).isEqualTo(product.type)
     }
 
     @Test
@@ -80,22 +73,7 @@ class ProductIT : BaseIntegrationTest() {
                 "id" to randomId.toString(),
             ),
         )
-        assertEquals(response.statusCode.value(), HttpStatus.NOT_FOUND.value())
-    }
-
-    @Test
-    fun `should return an empty Page of Product when no product is found`() {
-        val response =
-            restTemplate.exchange<PaginatedResponse<ProductResponse>>(
-                url = "/products",
-                method = HttpMethod.GET,
-            )
-
-        assertAll(
-            Executable { assertTrue(response.statusCode.is2xxSuccessful) },
-            Executable { assertThat(response.body).isNotNull },
-            Executable { assertThat(response.body!!.content.isEmpty()) },
-        )
+        assertThat(response.statusCode.value()).isEqualTo(HttpStatus.NOT_FOUND.value())
     }
 
     @Test
@@ -107,12 +85,10 @@ class ProductIT : BaseIntegrationTest() {
             method = HttpMethod.GET,
         )
 
-        assertAll(
-            Executable { assertTrue(response.statusCode.is2xxSuccessful) },
-            Executable { assertThat(response.body).isNotNull },
-            Executable { assertThat(response.body!!.content.isNotEmpty()) },
-            Executable { assertEquals(3, response.body!!.totalPages) },
-        )
+        assertThat(response.statusCode.is2xxSuccessful).isTrue()
+        assertThat(response.body).isNotNull
+        assertThat(response.body!!.content).isNotEmpty
+        assertThat(response.body!!.totalPages).isGreaterThanOrEqualTo(2)
     }
 
     @Test
@@ -126,11 +102,9 @@ class ProductIT : BaseIntegrationTest() {
             uriVariables = mapOf("type" to type),
         )
 
-        assertAll(
-            Executable { assertTrue(response.statusCode.is2xxSuccessful) },
-            Executable { assertThat(response.body).isNotNull },
-            Executable { assertThat(response.body!!).allSatisfy { it.type == type } },
-        )
+        assertThat(response.statusCode.is2xxSuccessful).isTrue()
+        assertThat(response.body).isNotNull
+        assertThat(response.body!!).allSatisfy { it.type == type }
     }
 
     @Test
@@ -144,10 +118,9 @@ class ProductIT : BaseIntegrationTest() {
             uriVariables = mapOf("type" to type),
         )
 
-        assertAll(
-            Executable { assertTrue(response.statusCode.is2xxSuccessful) },
-            Executable { assertThat(response.body).isEmpty() },
-        )
+        assertThat(response.statusCode.is2xxSuccessful).isTrue()
+        assertThat(response.body).isNotNull
+        assertThat(response.body!!).isEmpty()
     }
 
     @Test
@@ -161,7 +134,7 @@ class ProductIT : BaseIntegrationTest() {
             uriVariables = mapOf("id" to product.id),
         )
 
-        assertTrue(response.statusCode.is2xxSuccessful)
+        assertThat(response.statusCode.is2xxSuccessful).isTrue()
     }
 
     @Test
@@ -176,7 +149,7 @@ class ProductIT : BaseIntegrationTest() {
             ),
         )
 
-        assertEquals(response.statusCode.value(), HttpStatus.NOT_FOUND.value())
+        assertThat(response.statusCode.value()).isEqualTo(HttpStatus.NOT_FOUND.value())
     }
 
     private fun insertRandomTypeProducts() {

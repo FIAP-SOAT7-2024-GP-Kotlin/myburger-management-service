@@ -81,16 +81,7 @@ class BaseIntegrationTest {
         val interceptor = ClientHttpRequestInterceptor { req, body, exec ->
             req.headers.add("Authorization", "Bearer $token")
             req.headers.add("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-            val response = exec.execute(req, body)
-            log.info {
-                """
-                Response {
-                   statusCode: '${response.statusCode}'
-                   body: '${response.body.reader().readText()}'
-                }
-            """.trimIndent()
-            }
-            response
+            exec.execute(req, body)
         }
         restTemplate.restTemplate.interceptors = listOf(interceptor)
     }

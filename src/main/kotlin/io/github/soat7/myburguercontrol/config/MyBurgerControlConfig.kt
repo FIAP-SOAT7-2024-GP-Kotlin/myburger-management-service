@@ -7,6 +7,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import io.github.oshai.kotlinlogging.KotlinLogging
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.http.client.ClientHttpRequestFactoryBuilder
 import org.springframework.boot.web.client.RestTemplateBuilder
@@ -21,7 +22,10 @@ import java.time.Duration
 private val log = KotlinLogging.logger {}
 
 @Configuration
-class MyBurgerControlConfig {
+class MyBurgerControlConfig(
+    @Value("\${spring.rest-template.connect-timeout}") private val connectTimeout: Long,
+    @Value("\${spring.rest-template.read-timeout}") private val readTimeout: Long,
+) {
 
     @Bean
     fun objectMapperBuilder(): Jackson2ObjectMapperBuilder = Jackson2ObjectMapperBuilder()
@@ -37,21 +41,24 @@ class MyBurgerControlConfig {
     fun mappingJackson2HttpMessageConverter(): MappingJackson2HttpMessageConverter =
         MappingJackson2HttpMessageConverter(objectMapper())
 
-    @Bean(name = ["serviceUserRestTemplate"])
-    fun restTemplate(
-        @Value("\${spring.rest-template.connect-timeout}") connectTimeout: Long,
-        @Value("\${spring.rest-template.read-timeout}") readTimeout: Long,
-        builder: RestTemplateBuilder,
-    ): RestTemplate = run {
-        log.info { "################################################################" }
-        builder
-            .requestFactoryBuilder(
-                ClientHttpRequestFactoryBuilder.httpComponents().withHttpClientCustomizer {
-                    it.disableRedirectHandling()
-                },
-            )
+    @Bean
+    fun restTemplateBuilder(): RestTemplateBuilder = run {
+        val connectionManager = PoolingHttpClientConnectionManager()
+        connectionManager.maxTotal = 10
+        connectionManager.defaultMaxPerRoute = 10
+
+        RestTemplateBuilder()
             .connectTimeout(Duration.ofMillis(connectTimeout))
             .readTimeout(Duration.ofMillis(readTimeout))
-            .build()
+            .requestFactoryBuilder {
+                ClientHttpRequestFactoryBuilder.httpComponents()
+                    .withHttpClientCustomizer {
+                        it.setConnectionManager(connectionManager)
+                    }
+                    .build()
+            }
     }
+
+    @Bean(name = ["serviceUserRestTemplate"])
+    fun restTemplate(builder: RestTemplateBuilder): RestTemplate = builder.build()
 }

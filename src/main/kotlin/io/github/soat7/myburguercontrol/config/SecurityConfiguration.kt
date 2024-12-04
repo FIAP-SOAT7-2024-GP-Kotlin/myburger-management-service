@@ -15,7 +15,7 @@ class SecurityConfiguration {
     @Bean
     fun securityFilterChain(
         http: HttpSecurity,
-        jwtAuthFilter: JwtAuthFilter
+        jwtAuthFilter: JwtAuthFilter,
     ): DefaultSecurityFilterChain = run {
         http
             .authorizeHttpRequests {
@@ -32,7 +32,6 @@ class SecurityConfiguration {
                     .permitAll()
                     .anyRequest()
                     .hasAnyAuthority(UserRole.ADMIN.name)
-
             }
             .sessionManagement {
                 it.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
