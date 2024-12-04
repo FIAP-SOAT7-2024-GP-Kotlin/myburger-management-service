@@ -109,6 +109,7 @@ dependencies {
     testImplementation("org.awaitility:awaitility-kotlin:4.+")
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("org.liquibase:liquibase-core:4.+")
+    testImplementation("org.assertj:assertj-core:3+")
 
     // Liquibase
     liquibaseRuntime("info.picocli:picocli:4.+")

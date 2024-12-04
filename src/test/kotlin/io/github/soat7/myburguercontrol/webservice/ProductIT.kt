@@ -1,10 +1,12 @@
 package io.github.soat7.myburguercontrol.webservice
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.soat7.myburguercontrol.base.BaseIntegrationTest
 import io.github.soat7.myburguercontrol.domain.entities.enum.ProductType
 import io.github.soat7.myburguercontrol.external.webservice.common.PaginatedResponse
 import io.github.soat7.myburguercontrol.external.webservice.product.api.ProductResponse
 import io.github.soat7.myburguercontrol.fixtures.ProductFixtures
+import jakarta.transaction.Transactional
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertAll
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -18,9 +20,12 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import java.util.UUID
 
+private val log = KotlinLogging.logger { }
+
 class ProductIT : BaseIntegrationTest() {
 
     @Test
+    @Transactional(Transactional.TxType.NEVER)
     fun `should successfully create a new product`() {
         val inputProductData = ProductFixtures.mockProductCreationRequest()
 
@@ -30,19 +35,17 @@ class ProductIT : BaseIntegrationTest() {
             requestEntity = HttpEntity(inputProductData),
         )
 
-        assertAll(
-            Executable { assertTrue(response.statusCode.is2xxSuccessful) },
-            Executable { assertThat(response.body).isNotNull },
-            Executable { assertEquals(inputProductData.type.name, response.body!!.type) },
-        )
+        log.info { "response = $response" }
+
+        assertThat(response.statusCode.is2xxSuccessful).isTrue()
+        assertThat(response.body).isNotNull
+        assertThat(response.body!!.type).isEqualTo(inputProductData.type.name)
 
         val savedProduct = productJpaRepository.findByIdOrNull(response.body!!.id)
 
-        assertAll(
-            Executable { assertThat(savedProduct).isNotNull },
-            Executable { assertEquals(inputProductData.description, savedProduct!!.description) },
-            Executable { assertEquals(inputProductData.price, savedProduct!!.price) },
-        )
+        assertThat(savedProduct).isNotNull
+        assertThat(savedProduct!!.description).isEqualTo(inputProductData.description)
+        assertThat(savedProduct.price).isEqualTo(inputProductData.price)
     }
 
     @Test

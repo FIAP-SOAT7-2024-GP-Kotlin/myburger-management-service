@@ -5,15 +5,14 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.soat7.myburguercontrol.Application
 import io.github.soat7.myburguercontrol.adapters.mapper.toPersistence
 import io.github.soat7.myburguercontrol.config.MyBurgerControlConfig
+import io.github.soat7.myburguercontrol.config.MyBurgerTestConfig
 import io.github.soat7.myburguercontrol.container.MockServerContainer
 import io.github.soat7.myburguercontrol.container.PostgresContainer
 import io.github.soat7.myburguercontrol.domain.entities.Customer
 import io.github.soat7.myburguercontrol.domain.entities.enum.UserRole
 import io.github.soat7.myburguercontrol.external.db.customer.entity.CustomerEntity
 import io.github.soat7.myburguercontrol.external.db.customer.repository.CustomerJpaRepository
-import io.github.soat7.myburguercontrol.external.db.product.entity.ProductEntity
 import io.github.soat7.myburguercontrol.external.db.product.repository.ProductJpaRepository
-import io.github.soat7.myburguercontrol.fixtures.ProductFixtures
 import io.github.soat7.myburguercontrol.util.JwtTokenUtil
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.TestInstance
@@ -37,7 +36,7 @@ private val log = KotlinLogging.logger { }
 
 @ActiveProfiles("test")
 @SpringBootTest(
-    classes = [Application::class, MyBurgerControlConfig::class],
+    classes = [MyBurgerTestConfig::class, Application::class, MyBurgerControlConfig::class],
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
 )
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -85,13 +84,6 @@ class BaseIntegrationTest {
             exec.execute(req, body)
         }
         restTemplate.restTemplate.interceptors = listOf(interceptor)
-    }
-
-    protected fun insertProducts(): List<ProductEntity> {
-        productJpaRepository.save(ProductFixtures.mockProductEntity())
-        productJpaRepository.save(ProductFixtures.mockProductEntity())
-
-        return productJpaRepository.findAll()
     }
 
     protected fun insertCustomerData(customer: Customer): CustomerEntity {

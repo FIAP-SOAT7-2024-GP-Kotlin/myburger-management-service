@@ -23,7 +23,6 @@ class SecurityConfiguration {
         val filter = AuthenticationFilter(authenticationManager, authenticationConverter)
 
         http
-            .csrf { it.disable() }
             .authorizeHttpRequests {
                 it
                     .requestMatchers(
