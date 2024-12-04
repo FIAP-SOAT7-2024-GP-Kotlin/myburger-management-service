@@ -3,13 +3,11 @@ package io.github.soat7.myburguercontrol.config
 import io.github.soat7.myburguercontrol.domain.entities.enum.UserRole
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.web.DefaultSecurityFilterChain
-import org.springframework.security.web.authentication.AuthenticationConverter
-import org.springframework.security.web.authentication.AuthenticationFilter
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 
 @Configuration
 @EnableWebSecurity
@@ -17,11 +15,8 @@ class SecurityConfiguration {
     @Bean
     fun securityFilterChain(
         http: HttpSecurity,
-        authenticationManager: AuthenticationManager,
-        authenticationConverter: AuthenticationConverter,
+        jwtAuthFilter: JwtAuthFilter
     ): DefaultSecurityFilterChain = run {
-        val filter = AuthenticationFilter(authenticationManager, authenticationConverter)
-
         http
             .authorizeHttpRequests {
                 it
@@ -37,11 +32,12 @@ class SecurityConfiguration {
                     .permitAll()
                     .anyRequest()
                     .hasAnyAuthority(UserRole.ADMIN.name)
+
             }
             .sessionManagement {
                 it.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             }
-            .addFilter(filter)
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter::class.java)
             .formLogin { it.disable() }
             .httpBasic { it.disable() }
             .csrf { it.disable() }

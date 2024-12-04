@@ -25,6 +25,7 @@ management:
 
 myburger:
   service:
+    base-url: ${MYBURGER_BASE_URL:/}
     user:
       base-url: ${MYBURGER_USER_SERVICE_URL:/users}
 

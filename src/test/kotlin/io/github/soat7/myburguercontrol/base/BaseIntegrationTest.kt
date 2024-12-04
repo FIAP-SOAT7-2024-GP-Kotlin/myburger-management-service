@@ -36,7 +36,7 @@ private val log = KotlinLogging.logger { }
 
 @ActiveProfiles("test")
 @SpringBootTest(
-    classes = [MyBurgerTestConfig::class, Application::class, MyBurgerControlConfig::class],
+    classes = [Application::class, MyBurgerControlConfig::class, MyBurgerTestConfig::class],
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
 )
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -81,7 +81,16 @@ class BaseIntegrationTest {
         val interceptor = ClientHttpRequestInterceptor { req, body, exec ->
             req.headers.add("Authorization", "Bearer $token")
             req.headers.add("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-            exec.execute(req, body)
+            val response = exec.execute(req, body)
+            log.info {
+                """
+                Response {
+                   statusCode: '${response.statusCode}'
+                   body: '${response.body.reader().readText()}'
+                }
+            """.trimIndent()
+            }
+            response
         }
         restTemplate.restTemplate.interceptors = listOf(interceptor)
     }
