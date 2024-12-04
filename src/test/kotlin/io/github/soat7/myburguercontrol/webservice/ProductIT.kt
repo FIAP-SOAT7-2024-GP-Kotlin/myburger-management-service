@@ -27,7 +27,6 @@ class ProductIT : BaseIntegrationTest() {
 
         val response = restTemplate.postForEntity<ProductResponse>("/products", inputProductData)
 
-
         log.info { "response = $response" }
 
         assertThat(response.statusCode.is2xxSuccessful).isTrue()

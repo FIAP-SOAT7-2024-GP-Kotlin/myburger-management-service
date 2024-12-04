@@ -33,5 +33,4 @@ class UserWebGateway(
         log.error(e) { e.message }
         null
     }
-
 }
