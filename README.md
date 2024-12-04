@@ -1,3 +1,8 @@
+## Video demostração: 
+https://www.youtube.com/watch?v=vr1br-s-Adk&ab_channel=VidaExtra
+
+# myburger-management-service
+
 [![CI [MyBurger - Management Service]](https://github.com/FIAP-SOAT7-2024-GP-Kotlin/myburger-management-service/actions/workflows/main.yml/badge.svg)](https://github.com/FIAP-SOAT7-2024-GP-Kotlin/myburger-payment-service/actions/workflows/main.yml)
 
 [![Coverage](.github/badges/jacoco.svg)](https://github.com/FIAP-SOAT7-2024-GP-Kotlin/myburger-management-service/actions/workflows/main.yml)
@@ -20,7 +25,10 @@ ___
    - Jornada de Cliente
    - Jornada de Pedido
    - Jornada de Pagamento
-   - Administrativo
+   - Administrativo## Video demostração: 
+https://www.youtube.com/watch?v=vr1br-s-Adk&ab_channel=VidaExtra
+
+
 6. [Liquibase](#liquibase)
    - Gerando um XML do Liquibase Novo
 7. [Infraestrutura de Cloud](#infraestrutura-de-cloud)
