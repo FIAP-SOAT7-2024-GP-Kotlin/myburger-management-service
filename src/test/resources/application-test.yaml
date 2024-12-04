@@ -1,0 +1,41 @@
+logging:
+  level:
+    io.github.soat7: INFO
+    org.springframework.jdbc.core.JdbcTemplate: INFO
+    org.springframework.web.client: INFO
+    org.springframework.security: TRACE
+    org.hibernate.tool.schema: INFO
+    org.hibernate.SQL: INFO
+
+myburger:
+  service:
+    user:
+      base-url: ${MOCK_SERVER_URL}/users
+
+spring:
+  datasource:
+    schema: mb_manager
+    url: jdbc:${DATABASE_URL}
+    username: ${DATABASE_USER}
+    password: ${DATABASE_PASSWORD}
+  jpa:
+    database: POSTGRESQL
+    show-sql: true
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: ${spring.datasource.schema}
+  liquibase:
+    change-log: classpath:/db/changelog/master.xml
+    enabled: true
+    default-schema: ${spring.datasource.schema}
+
+
+mock-server:
+  url: ${MOCK_SERVER_URL}
+
+jwt:
+  key: "hjasdohijohi3987908asklflkklasdf098"
+  access-token-expiration: 3600000
+  refresh-token-expiration: 86400000

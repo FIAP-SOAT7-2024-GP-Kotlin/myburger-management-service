@@ -1,0 +1,105 @@
+name: CI MyBurger - Management Service
+
+on: [push, pull_request]
+
+env:
+  REPO_NAME: ${{ github.event.repository.name }}
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: 21
+          cache: 'gradle'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          build-scan-publish: true
+          build-scan-terms-of-use-url: "https://gradle.com/terms-of-service"
+          build-scan-terms-of-use-agree: "yes"
+
+      - name: Run build
+        run: ./gradlew clean build --no-daemon -x test
+
+      - name: Run tests
+        run: ./gradlew test --info --stacktrace
+
+      - name: Generate JaCoCo Test Coverage Report
+        run: ./gradlew jacocoTestReport
+
+      - name: Get current date
+        id: date
+        run: echo "::set-output name=date::$(date +'%Y%m%d')"
+
+      - name: Check Test Coverage
+        run: |
+          echo "Test Coverage Report:"
+          ls -la build/reports/jacoco/test
+
+      - name: Upload JaCoCo Test Coverage Report to Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: build/reports/jacoco/test/html/
+
+      - name: Generate JaCoCo Badge
+        id: jacoco
+        uses: cicirello/jacoco-badge-generator@v2
+        with:
+          generate-coverage-badge: true
+          generate-branches-badge: true
+          jacoco-csv-file: build/reports/jacoco/test/jacoco.csv
+
+      - name: Log coverage percentage
+        run: |
+          echo "coverage = ${{ steps.jacoco.outputs.coverage }}"
+          echo "branch coverage = ${{ steps.jacoco.outputs.branches }}"
+
+      - name: Commit and push the badge (if it changed)
+        uses: EndBug/add-and-commit@v7
+        with:
+          default_author: github_actions
+          message: 'commit badge'
+          add: '*.svg'
+
+      - name: Run SonarQube Analysis
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          ./gradlew \
+          -Dsonar.projectKey=FIAP-SOAT7-2024-GP-Kotlin_myburger-management-service \
+          -Dsonar.host.url=https://sonarcloud.io \
+          -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+          -Dsonar.organization=fiap-soat7-2024-gp-kotlin \
+          -Dsonar.coverage.jacoco.xmlReportPaths=build/reports/jacoco/test/jacoco.xml \
+          -Dsonar.sources=src \
+          -Dsonar.java.coveragePlugin=jacoco \
+          -Dsonar.exclusions=**/src/test/**/*,**/Application.kt,**/exception/**/*,**/config/**/*,**/mock/**/*,**/*Configuration.kt,**/*Config.kt \
+          -Dsonar.tests=src/test/kotlin \
+          sonar
+
+      - name: Authentication Docker Hub
+        uses: docker/login-action@v3.2.0
+        with:
+          username: ${{secrets.DOCKERHUB_USER}}
+          password: ${{secrets.DOCKERHUB_PWD}}
+
+      - name: Build the Docker image
+        uses: docker/build-push-action@v6.0.0
+        with:
+          context: ./
+          file: ./Dockerfile
+          push: true
+          tags: |
+            fiapmyburguer/${{ env.REPO_NAME }}:${{ steps.date.outputs.date }}
+            fiapmyburguer/${{ env.REPO_NAME }}:latest
